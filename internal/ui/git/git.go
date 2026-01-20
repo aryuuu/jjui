@@ -313,12 +313,14 @@ func (m *Model) createMenuItems() []menu.Item {
 		selectedRemote = ""
 	}
 
+	allBookmarkNames := []string{}
 	for _, commit := range revisions.Revisions {
 		bookmarks := loadBookmarks(m.context, commit.GetChangeId())
 		for _, b := range bookmarks {
 			if b.Conflict {
 				continue
 			}
+			allBookmarkNames = append(allBookmarkNames, b.Name)
 			for _, remote := range b.Remotes {
 				items = append(items, item{
 					name:     fmt.Sprintf("git push --bookmark %s --remote %s", b.Name, remote.Remote),
@@ -329,6 +331,19 @@ func (m *Model) createMenuItems() []menu.Item {
 			}
 		}
 	}
+
+	myargs := []string{"--allow-new"}
+	for _, b := range allBookmarkNames {
+		myargs = append(myargs, "--bookmark", b)
+	}
+	myargs = append(myargs, "--remote=origin")
+	items = append(items, item{
+		name:     fmt.Sprintf("git push --bookmark %s", strings.Join(allBookmarkNames, " --bookmark ")),
+		desc:     fmt.Sprintf("Git push bookmarks %s", strings.Join(allBookmarkNames, " ")),
+		command:  jj.GitPush(myargs...),
+		category: itemCategoryPush,
+	})
+
 	items = append(items,
 		item{
 			name:     fmt.Sprintf("git push --remote %s", selectedRemote),
