@@ -1,0 +1,61 @@
+# jjui Custom Command Configuration
+# Place this in ~/.config/jjui/config.toml or merge with your existing config
+
+[[custom_command]]
+name = "Push Descendants"
+description = "Push current changeset and all descendants with bookmarks"
+script = """
+-- Push current changeset and all descendants with bookmarks
+local change_id = context.change_id()
+if not change_id then
+  flash("No revision selected")
+  return
+end
+
+-- Get all descendants including current
+local revset = change_id .. "::"
+local output, err = jj("log", "-r", revset, "--no-graph", "--template", "change_id.shortest() ++ \"\\n\"")
+if err then
+  flash("Error getting descendants: " .. err)
+  return
+end
+
+local change_ids = split_lines(output, false)
+if #change_ids == 0 then
+  flash("No revisions found")
+  return
+end
+
+-- Get bookmarks for all these revisions
+local bookmarks = {}
+for _, cid in ipairs(change_ids) do
+  local bookmark_output, bookmark_err = jj("bookmark", "list", "-r", cid, "--template", "name ++ \"\\n\"")
+  if not bookmark_err and bookmark_output ~= "" then
+    local names = split_lines(bookmark_output, false)
+    for _, name in ipairs(names) do
+      if name ~= "" then
+        table.insert(bookmarks, name)
+      end
+    end
+  end
+end
+
+if #bookmarks == 0 then
+  flash("No bookmarks found on current revision or descendants")
+  return
+end
+
+-- Build git push command with all bookmarks
+local args = {"git", "push"}
+for _, bookmark in ipairs(bookmarks) do
+  table.insert(args, "--bookmark")
+  table.insert(args, bookmark)
+end
+
+-- Show what we're about to push
+local bookmark_list = table.concat(bookmarks, ", ")
+flash("Pushing bookmarks: " .. bookmark_list)
+
+-- Execute the push
+jj_async(table.unpack(args))
+"""
