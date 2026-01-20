@@ -2,6 +2,7 @@ package jj
 
 import (
 	"fmt"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -266,6 +267,7 @@ func Show(revision string, extraArgs ...string) CommandArgs {
 
 func Rebase(from SelectedRevisions, to string, source string, target string, skipEmptied bool, ignoreImmutable bool) CommandArgs {
 	args := []string{"rebase"}
+	exec.Command("notify-send", "commands.Rebase", "prefix: ", source).Run()
 	args = append(args, from.AsPrefixedArgs(source)...)
 	args = append(args, target, to)
 	if ignoreImmutable {
@@ -278,6 +280,7 @@ func Rebase(from SelectedRevisions, to string, source string, target string, ski
 }
 
 func RebaseInsert(from SelectedRevisions, insertAfter string, insertBefore string, skipEmptied bool, ignoreImmutable bool) CommandArgs {
+	exec.Command("notify-send", "rebase insert").Run()
 	args := []string{"rebase"}
 	args = append(args, from.AsArgs()...)
 	args = append(args, "--insert-before", insertBefore)

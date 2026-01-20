@@ -578,7 +578,7 @@ func (m *Model) startRebase(intent intents.StartRebase) tea.Cmd { // let's take 
 	exec.Command("notify-send", "startRebase", "startRebase start").Run()
 	selected := intent.Selected
 	if len(selected.Revisions) == 0 { // is this for handling the case where no item is selected using space?
-		exec.Command("notify-send", "startRebase", "len selected revisions = 0")
+		exec.Command("notify-send", "startRebase", "len selected revisions = 0").Run()
 		selected = m.SelectedRevisions()
 	}
 	if len(selected.Revisions) == 0 {
@@ -587,6 +587,7 @@ func (m *Model) startRebase(intent intents.StartRebase) tea.Cmd { // let's take 
 
 	source := rebaseSourceFromIntent(intent.Source)
 	target := rebaseTargetFromIntent(intent.Target)
+	exec.Command("notify-send", "startRebase", fmt.Sprintf("source: %v, target: %v", source, target)).Run()
 	m.op = rebase.NewOperation(m.context, selected, source, target)
 	return m.op.Init()
 }

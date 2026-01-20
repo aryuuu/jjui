@@ -2,6 +2,7 @@ package rebase
 
 import (
 	"fmt"
+	"os/exec"
 	"slices"
 	"strings"
 	"time"
@@ -119,12 +120,16 @@ func (r *Operation) handleIntent(intent intents.Intent) tea.Cmd {
 	case intents.RebaseToggleSkipEmptied:
 		r.SkipEmptied = !r.SkipEmptied
 	case intents.Apply:
+		exec.Command("notify-send", "rebase op handle intent", "start").Run()
 		skipEmptied := r.SkipEmptied
 		if r.Target == TargetInsert {
 			return r.context.RunCommand(jj.RebaseInsert(r.From, r.InsertStart.GetChangeId(), r.To.GetChangeId(), skipEmptied, msg.Force), common.RefreshAndSelect(r.From.Last()), common.Close)
 		}
 		source := sourceToFlags[r.Source]
 		target := targetToFlags[r.Target]
+		exec.Command("notify-send", "rebase op handle intent", fmt.Sprintf("source with prefix: %s", strings.Join(r.From.AsPrefixedArgs(source), ", "))).Run()
+
+		// args = append(args, from.AsPrefixedArgs(source)...)
 		return r.context.RunCommand(jj.Rebase(r.From, r.To.GetChangeId(), source, target, skipEmptied, msg.Force), common.RefreshAndSelect(r.From.Last()), common.Close)
 	case intents.Cancel:
 		return common.Close
@@ -349,6 +354,7 @@ func NewOperation(context *context.MainContext, from jj.SelectedRevisions, sourc
 		sourceMarker: common.DefaultPalette.Get("rebase source_marker"),
 		targetMarker: common.DefaultPalette.Get("rebase target_marker"),
 	}
+	exec.Command("notify-send", "rebase op new op", fmt.Sprintf("from: %v", from)).Run()
 	return &Operation{
 		context: context,
 		keyMap:  config.Current.GetKeyMap(),
