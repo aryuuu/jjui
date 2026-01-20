@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os/exec"
 	"reflect"
 	"slices"
 	"strings"
@@ -573,9 +574,11 @@ func (m *Model) startSquash(intent intents.StartSquash) tea.Cmd {
 	return m.op.Init()
 }
 
-func (m *Model) startRebase(intent intents.StartRebase) tea.Cmd {
+func (m *Model) startRebase(intent intents.StartRebase) tea.Cmd { // let's take a look here
+	exec.Command("notify-send", "startRebase", "startRebase start").Run()
 	selected := intent.Selected
-	if len(selected.Revisions) == 0 {
+	if len(selected.Revisions) == 0 { // is this for handling the case where no item is selected using space?
+		exec.Command("notify-send", "startRebase", "len selected revisions = 0")
 		selected = m.SelectedRevisions()
 	}
 	if len(selected.Revisions) == 0 {

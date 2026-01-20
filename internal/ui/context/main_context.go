@@ -56,7 +56,7 @@ func (ctx *MainContext) ClearCheckedItems(ofType reflect.Type) {
 	})
 }
 
-func (ctx *MainContext) AddCheckedItem(item SelectedItem) {
+func (ctx *MainContext) AddCheckedItem(item SelectedItem) { // this sounds important for the batch rebase
 	exists := slices.ContainsFunc(ctx.CheckedItems, func(i SelectedItem) bool {
 		return i.Equal(item)
 	})

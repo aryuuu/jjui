@@ -79,7 +79,7 @@ func (s *Operation) Update(msg tea.Msg) tea.Cmd {
 					CommitId: s.revision.CommitId,
 					File:     it.fileName,
 				}
-				s.context.AddCheckedItem(sel)
+				s.context.AddCheckedItem(sel) // how about this one
 			}
 		}
 		s.setItems(items)
@@ -163,7 +163,7 @@ func (s *Operation) HandleKey(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, s.keyMap.Details.Absorb):
 		return s.handleIntent(intents.DetailsAbsorb{})
 	case key.Matches(msg, s.keyMap.Details.ToggleSelect):
-		return s.handleIntent(intents.DetailsToggleSelect{})
+		return s.handleIntent(intents.DetailsToggleSelect{}) // HERE
 	case key.Matches(msg, s.keyMap.Details.RevisionsChangingFile):
 		return s.handleIntent(intents.DetailsRevisionsChangingFile{})
 	}
@@ -264,7 +264,7 @@ func (s *Operation) handleIntent(intent intents.Intent) tea.Cmd {
 				File:     current.fileName,
 			}
 			if isChecked {
-				s.context.AddCheckedItem(checkedFile)
+				s.context.AddCheckedItem(checkedFile) // okay maybe this is not for selecting changeset
 			} else {
 				s.context.RemoveCheckedItem(checkedFile)
 			}
